@@ -82,4 +82,5 @@ Grid data in this build is **synthetically generated** using physics-informed eq
 
 ---
 
-Built for HACK26.
+Built for HACK26 - Hackathon
+
