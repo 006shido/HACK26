@@ -40,9 +40,9 @@ export default function HeatHistory({ city, selectedZoneId, hideHeader = false }
   // Chart SVG Math
   const minTemp = Math.min(...yearly_series.map((d) => d.min_lst)) - 0.5;
   const maxTemp = Math.max(...yearly_series.map((d) => d.max_lst)) + 0.5;
-  const chartHeight = 220;
-  const chartWidth = 520;
-  const padding = 35;
+  const chartHeight = 320;
+  const chartWidth = 1100;
+  const padding = 60;
 
   const getX = (index) => padding + (index / (yearly_series.length - 1)) * (chartWidth - 2 * padding);
   const getY = (val) => chartHeight - padding - ((val - minTemp) / (maxTemp - minTemp)) * (chartHeight - 2 * padding);

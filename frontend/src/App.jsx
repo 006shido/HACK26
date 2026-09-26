@@ -106,7 +106,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07080b] text-slate-100 p-2.5 sm:p-5 max-w-7xl mx-auto selection:bg-[#b5f639]/30 selection:text-[#b5f639] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#07080b] text-slate-100 px-4 sm:px-8 xl:px-12 py-3 w-full selection:bg-[#b5f639]/30 selection:text-[#b5f639] relative overflow-x-hidden">
       {/* High-Tech Loading Screen Overlay */}
       {isLoading && (
         <LoadingScreen

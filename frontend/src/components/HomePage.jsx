@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 
 export default function HomePage({
   cities = [],
@@ -22,7 +23,7 @@ export default function HomePage({
     }`}>
       
       {/* CIRCULAR SIGNATURE LIGHT CANVAS CONTAINER FRAME */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto px-2 sm:px-6">
         
         {/* Fixed Rounded Canvas Container Inspired by Circular */}
         <div className="relative w-full rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-b from-[#f5fbf1] via-[#edf5e7] to-[#e1eed8] border border-white/70 shadow-[0_25px_80px_rgba(0,0,0,0.65)] p-6 sm:p-12 overflow-hidden flex flex-col justify-between min-h-[580px] max-h-[82vh] text-center space-y-8 transition-all duration-500">
@@ -59,8 +60,8 @@ export default function HomePage({
                 <span className="px-6 py-3 bg-[#0d1117] group-hover:bg-[#1a222e] text-white font-bold text-sm rounded-l-2xl transition-colors duration-300 flex items-center gap-2">
                   <span>Get Started with System Matrix</span>
                 </span>
-                <span className="w-11 h-11 bg-[#a3e635] group-hover:bg-[#b5f639] group-active:bg-[#84cc16] flex items-center justify-center rounded-r-2xl text-[#0d1117] font-bold text-lg transition-all duration-300 group-hover:rotate-45">
-                  ↘
+                <span className="w-11 h-11 bg-[#a3e635] group-hover:bg-[#b5f639] group-active:bg-[#84cc16] flex items-center justify-center rounded-r-2xl text-[#0d1117] transition-all duration-300">
+                  <ArrowRight className="w-5 h-5 text-[#0d1117] transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </button>
             </div>

@@ -2,6 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Globe, Map as MapIcon, Layers, Trees, Home, Shield, Flame } from 'lucide-react';
 
+const safeCloseTooltip = (map) => {
+  try {
+    if (map && map._tooltip) {
+      map.closeTooltip();
+    }
+  } catch (e) {
+    // Ignore if tooltip not found
+  }
+};
+
 export default function ThermalMap({
   city = 'Delhi',
   zones = [],
@@ -84,6 +94,10 @@ export default function ThermalMap({
       coolRoofsLayerRef.current = L.layerGroup().addTo(map);
       corridorsLayerRef.current = L.layerGroup().addTo(map);
 
+      map.on('movestart zoomstart mouseout click', () => {
+        safeCloseTooltip(map);
+      });
+
       mapInstanceRef.current = map;
 
       setTimeout(() => {
@@ -91,6 +105,7 @@ export default function ThermalMap({
       }, 150);
     } else {
       mapInstanceRef.current.setView([center.lat, center.lon], 13);
+      safeCloseTooltip(mapInstanceRef.current);
       setTimeout(() => {
         mapInstanceRef.current?.invalidateSize();
       }, 150);
@@ -131,6 +146,7 @@ export default function ThermalMap({
   // 1. Render Heat Hotspots Layer with RICH MODELLED IMPACT TILE HOVER OVERLAY
   useEffect(() => {
     if (!mapInstanceRef.current || !hotspotsLayerRef.current) return;
+    safeCloseTooltip(mapInstanceRef.current);
     hotspotsLayerRef.current.clearLayers();
 
     if (!showHotspots || !zones || zones.length === 0) return;
@@ -167,7 +183,7 @@ export default function ThermalMap({
       const isBudgetOk = userBudgetInr >= requiredBudget;
 
       const tooltipContent = `
-        <div class="p-3.5 font-sans bg-[#07080b]/60 backdrop-blur-md text-white rounded-2xl border border-[#b5f639]/40 shadow-[0_20px_60px_rgba(0,0,0,0.6)] w-[450px] space-y-2.5">
+        <div class="pointer-events-none select-none p-3.5 font-sans bg-[#07080b]/90 backdrop-blur-md text-white rounded-2xl border border-[#b5f639]/40 shadow-[0_20px_60px_rgba(0,0,0,0.8)] w-[420px] max-w-[90vw] space-y-2.5">
           <!-- Top Row: Zone Header + Risk Badge + Impact Pill -->
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <div class="flex items-center gap-2">
@@ -253,11 +269,34 @@ export default function ThermalMap({
         </div>
       `;
 
-      rect.bindTooltip(tooltipContent, { direction: 'top', sticky: true, opacity: 0.95 });
+      rect.bindTooltip(tooltipContent, {
+        direction: 'top',
+        sticky: true,
+        opacity: 0.98,
+        offset: [0, -14],
+        className: 'pointer-events-none select-none'
+      });
 
-      rect.on('click', () => onSelectZone(zone.zone_id));
+      rect.on('mouseover', function () {
+        safeCloseTooltip(mapInstanceRef.current);
+        this.openTooltip();
+      });
+
+      rect.on('mouseout', function () {
+        this.closeTooltip();
+      });
+
+      rect.on('click', () => {
+        safeCloseTooltip(mapInstanceRef.current);
+        onSelectZone(zone.zone_id);
+      });
+
       rect.addTo(hotspotsLayerRef.current);
     });
+
+    return () => {
+      safeCloseTooltip(mapInstanceRef.current);
+    };
   }, [zones, selectedZoneId, showHotspots, deltaNdvi, deltaAlbedo, deltaNdbi, userBudgetInr, userWaterLpd, onSelectZone]);
 
   // Helper to create custom HTML DivIcon for intervention markers
@@ -479,8 +518,8 @@ export default function ThermalMap({
       </div>
 
       {/* Map Canvas */}
-      <div className="relative w-full h-[500px] sm:h-[580px] rounded-2xl overflow-hidden border border-white/10 shadow-inner">
-        <div ref={mapContainerRef} className="w-full h-full h-[500px] sm:h-[580px] z-0"></div>
+      <div className="relative w-full h-[500px] sm:h-[580px] lg:h-[660px] rounded-2xl overflow-hidden border border-white/10 shadow-inner">
+        <div ref={mapContainerRef} className="w-full h-full z-0"></div>
 
         {/* Heat Intensity Legend Overlay */}
         <div className="absolute bottom-3 left-3 z-[400] bg-[#0e1117]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 text-[10px] shadow-lg">

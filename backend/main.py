@@ -1,9 +1,16 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
-from backend.model_engine import UrbanHeatModelEngine, CITY_COORDINATES
+try:
+    from backend.model_engine import UrbanHeatModelEngine, CITY_COORDINATES
+except ModuleNotFoundError:
+    from model_engine import UrbanHeatModelEngine, CITY_COORDINATES
 
 try:
     from openai import OpenAI

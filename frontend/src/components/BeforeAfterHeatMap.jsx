@@ -2,6 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Globe, Map as MapIcon, Columns, Layers, Flame, Snowflake, Info, CheckCircle2, ArrowRight } from 'lucide-react';
 
+const safeCloseTooltip = (map) => {
+  try {
+    if (map && map._tooltip) {
+      map.closeTooltip();
+    }
+  } catch (e) {
+    // Ignore
+  }
+};
+
 export default function BeforeAfterHeatMap({
   city,
   center,
@@ -191,20 +201,31 @@ export default function BeforeAfterHeatMap({
         });
 
         rect.bindTooltip(
-          `<div class="p-2 font-sans bg-[#0e1117] text-white rounded-xl border border-white/10 shadow-2xl">
+          `<div class="pointer-events-none select-none p-2 font-sans bg-[#0e1117] text-white rounded-xl border border-white/10 shadow-2xl">
             <div class="font-extrabold text-xs text-rose-400">BEFORE: ${z.zone_id}</div>
             <div class="text-sm font-black text-white">${z.baseline_lst}°C</div>
             <div class="text-[10px] text-slate-400">Baseline Surface LST</div>
           </div>`,
-          { direction: 'top', sticky: true }
+          { direction: 'top', sticky: true, className: 'pointer-events-none select-none', offset: [0, -10] }
         );
-        rect.on('click', () => onSelectZone(z.zone_id));
+        rect.on('mouseover', function () {
+          safeCloseTooltip(instanceLeftRef.current);
+          this.openTooltip();
+        });
+        rect.on('mouseout', function () {
+          this.closeTooltip();
+        });
+        rect.on('click', () => {
+          safeCloseTooltip(instanceLeftRef.current);
+          onSelectZone(z.zone_id);
+        });
         rect.addTo(layerGroupLeftRef.current);
       });
     }
 
     // 2. Render Right Map (AFTER)
     if (viewMode === 'side_by_side' && layerGroupRightRef.current) {
+      safeCloseTooltip(instanceRightRef.current);
       layerGroupRightRef.current.clearLayers();
       comparisonData.zones.forEach((z) => {
         const isSelected = z.zone_id === selectedZoneId;
@@ -219,20 +240,31 @@ export default function BeforeAfterHeatMap({
         });
 
         rect.bindTooltip(
-          `<div class="p-2 font-sans bg-[#0e1117] text-white rounded-xl border border-white/10 shadow-2xl">
+          `<div class="pointer-events-none select-none p-2 font-sans bg-[#0e1117] text-white rounded-xl border border-white/10 shadow-2xl">
             <div class="font-extrabold text-xs text-[#b5f639]">AFTER: ${z.zone_id}</div>
             <div class="text-sm font-black text-[#b5f639]">${z.simulated_lst}°C</div>
             <div class="text-[10px] text-emerald-400 font-bold">Modelled Reduction: ↓${z.cooling_impact}°C</div>
           </div>`,
-          { direction: 'top', sticky: true }
+          { direction: 'top', sticky: true, className: 'pointer-events-none select-none', offset: [0, -10] }
         );
-        rect.on('click', () => onSelectZone(z.zone_id));
+        rect.on('mouseover', function () {
+          safeCloseTooltip(instanceRightRef.current);
+          this.openTooltip();
+        });
+        rect.on('mouseout', function () {
+          this.closeTooltip();
+        });
+        rect.on('click', () => {
+          safeCloseTooltip(instanceRightRef.current);
+          onSelectZone(z.zone_id);
+        });
         rect.addTo(layerGroupRightRef.current);
       });
     }
 
     // 3. Render Difference Map (COOLING IMPACT)
     if (viewMode === 'difference' && layerGroupDiffRef.current) {
+      safeCloseTooltip(instanceDiffRef.current);
       layerGroupDiffRef.current.clearLayers();
       comparisonData.zones.forEach((z) => {
         const isSelected = z.zone_id === selectedZoneId;
@@ -247,14 +279,24 @@ export default function BeforeAfterHeatMap({
         });
 
         rect.bindTooltip(
-          `<div class="p-2 font-sans bg-[#0e1117] text-white rounded-xl border border-white/10 shadow-2xl">
+          `<div class="pointer-events-none select-none p-2 font-sans bg-[#0e1117] text-white rounded-xl border border-white/10 shadow-2xl">
             <div class="font-extrabold text-xs text-cyan-400">COOLING IMPACT: ${z.zone_id}</div>
             <div class="text-sm font-black text-cyan-300">↓ ${z.cooling_impact}°C Drop</div>
             <div class="text-[10px] text-slate-300">Baseline ${z.baseline_lst}°C → Scenario ${z.simulated_lst}°C</div>
           </div>`,
-          { direction: 'top', sticky: true }
+          { direction: 'top', sticky: true, className: 'pointer-events-none select-none', offset: [0, -10] }
         );
-        rect.on('click', () => onSelectZone(z.zone_id));
+        rect.on('mouseover', function () {
+          safeCloseTooltip(instanceDiffRef.current);
+          this.openTooltip();
+        });
+        rect.on('mouseout', function () {
+          this.closeTooltip();
+        });
+        rect.on('click', () => {
+          safeCloseTooltip(instanceDiffRef.current);
+          onSelectZone(z.zone_id);
+        });
         rect.addTo(layerGroupDiffRef.current);
       });
     }
@@ -352,33 +394,33 @@ export default function BeforeAfterHeatMap({
 
       {/* Map Views Container */}
       {viewMode === 'side_by_side' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[480px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[480px] lg:min-h-[560px] xl:min-h-[620px]">
           {/* Left Map: BEFORE */}
-          <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0e1117] h-[480px]">
+          <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0e1117] h-[480px] lg:h-[560px] xl:h-[620px]">
             <div className="absolute top-2 left-2 z-[400] bg-[#07080b]/90 backdrop-blur px-2.5 py-1 rounded-lg border border-rose-500/40 text-xs font-black text-rose-400 flex items-center gap-1.5 shadow">
               <Flame className="w-3.5 h-3.5 text-rose-500" />
               <span>BEFORE: Current Baseline Heat</span>
             </div>
-            <div ref={mapLeftRef} className="w-full h-full h-[480px] z-0"></div>
+            <div ref={mapLeftRef} className="w-full h-full z-0"></div>
           </div>
 
           {/* Right Map: AFTER */}
-          <div className="relative rounded-2xl overflow-hidden border border-[#b5f639]/30 bg-[#0e1117] h-[480px]">
+          <div className="relative rounded-2xl overflow-hidden border border-[#b5f639]/30 bg-[#0e1117] h-[480px] lg:h-[560px] xl:h-[620px]">
             <div className="absolute top-2 left-2 z-[400] bg-[#07080b]/90 backdrop-blur px-2.5 py-1 rounded-lg border border-[#b5f639]/40 text-xs font-black text-[#b5f639] flex items-center gap-1.5 shadow">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#b5f639]" />
               <span>AFTER: Modelled Post-Intervention Heat</span>
             </div>
-            <div ref={mapRightRef} className="w-full h-full h-[480px] z-0"></div>
+            <div ref={mapRightRef} className="w-full h-full z-0"></div>
           </div>
         </div>
       ) : (
         /* Difference Map View */
-        <div className="relative rounded-2xl overflow-hidden border border-cyan-500/30 bg-[#0e1117] h-[480px] min-h-[480px]">
+        <div className="relative rounded-2xl overflow-hidden border border-cyan-500/30 bg-[#0e1117] h-[480px] lg:h-[560px] xl:h-[620px] min-h-[480px]">
           <div className="absolute top-2 left-2 z-[400] bg-[#07080b]/90 backdrop-blur px-2.5 py-1 rounded-lg border border-cyan-500/40 text-xs font-black text-cyan-300 flex items-center gap-1.5 shadow">
             <Snowflake className="w-3.5 h-3.5 text-cyan-400" />
             <span>COOLING IMPACT: Baseline LST - Modelled LST (Spatial Drop Δ°C)</span>
           </div>
-          <div ref={mapDiffRef} className="w-full h-full h-[480px] z-0"></div>
+          <div ref={mapDiffRef} className="w-full h-full z-0"></div>
         </div>
       )}
 

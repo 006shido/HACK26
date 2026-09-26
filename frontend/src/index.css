@@ -132,6 +132,13 @@ input[type=range]::-webkit-slider-thumb:hover {
   box-shadow: none !important;
   padding: 0 !important;
   color: #ffffff !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.leaflet-tooltip * {
+  pointer-events: none !important;
+  user-select: none !important;
 }
 
 .leaflet-tooltip-left::before,
